@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:exercise_dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -33,7 +35,7 @@ class _TableEventsState extends State<TableEvents> {
   bool _toggle = true;
   bool _toggle2 = false;
 
-  late final ValueNotifier<List<Event>> _selectedEvents;
+  late ValueNotifier<List<Event>> _selectedEvents;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode
       .toggledOff; // Can be toggled on/off by longpressing a date
@@ -42,11 +44,36 @@ class _TableEventsState extends State<TableEvents> {
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
 
+  bool _open = false;
+
   @override
   void initState() {
     super.initState();
-    _selectedDay = _focusedDay;
-    _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
+
+    loadData().then((value) {
+      //print(value);
+      _selectedDay = _focusedDay;
+      _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
+      //print("_selectedDay");
+      //print("select $_selectedDay");
+      //print(_selectedEvents.hasListeners);
+      setState(() {
+        _selectedEvents = _selectedEvents;
+        _open = true;
+      });
+    });
+
+    //print("ddd");
+    //searchEvents();
+    // Timer(Duration(seconds: 5), () {
+    //   print('Hello');
+    //   callEvent();
+    // });
+  }
+
+  Future loadData() async {
+    await runEvent();
+    //print(_selectedEvents);
   }
 
   @override
@@ -57,6 +84,9 @@ class _TableEventsState extends State<TableEvents> {
 
   List<Event> _getEventsForDay(DateTime day) {
     // Implementation example
+    // ignore: avoid_print
+    //print("kevent: $kEvents");
+
     return kEvents[day] ?? [];
   }
 
@@ -108,121 +138,137 @@ class _TableEventsState extends State<TableEvents> {
       appBar: AppBar(
         title: Text('Exercise Event'),
       ),
-      body: Column(children: [
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            InkWell(
-              onTap: () {
-                setState(() {
-                  if (_toggle != true) {
-                    _toggle = true;
-                    _toggle2 = false;
-                  }
-                  tag = "0";
-                });
-              },
-              child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: _toggle != true
-                        ? Colors.transparent
-                        : Color(0xffece0d1),
+      body: _open != true
+          ? CircularProgressIndicator()
+          : Column(children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        if (_toggle != true) {
+                          _toggle = true;
+                          _toggle2 = false;
+                        }
+                        tag = "0";
+                      });
+                    },
+                    child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: _toggle != true
+                              ? Colors.transparent
+                              : Color(0xffece0d1),
+                        ),
+                        width: 120,
+                        child: const Text(
+                          "Calendar",
+                          textAlign: TextAlign.center,
+                        )),
                   ),
-                  width: 120,
-                  child: const Text(
-                    "Calendar",
-                    textAlign: TextAlign.center,
-                  )),
-            ),
-            InkWell(
-              onTap: () {
-                setState(() {
-                  tag = "1";
-                  if (_toggle2 != true) {
-                    _toggle = false;
-                    _toggle2 = true;
-                  }
-                });
-              },
-              child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: _toggle2 != true
-                        ? Colors.transparent
-                        : Color(0xffece0d1),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        tag = "1";
+                        if (_toggle2 != true) {
+                          _toggle = false;
+                          _toggle2 = true;
+                        }
+                      });
+                    },
+                    child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: _toggle2 != true
+                              ? Colors.transparent
+                              : Color(0xffece0d1),
+                        ),
+                        width: 120,
+                        child: const Text(
+                          "DashBoard",
+                          textAlign: TextAlign.center,
+                        )),
                   ),
-                  width: 120,
-                  child: const Text(
-                    "DashBoard",
-                    textAlign: TextAlign.center,
-                  )),
-            ),
-          ],
-        ),
-        if (tag == "0") ...[
-          TableCalendar<Event>(
-            firstDay: kFirstDay,
-            lastDay: kLastDay,
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            rangeStartDay: _rangeStart,
-            rangeEndDay: _rangeEnd,
-            calendarFormat: _calendarFormat,
-            rangeSelectionMode: _rangeSelectionMode,
-            eventLoader: _getEventsForDay,
-            startingDayOfWeek: StartingDayOfWeek.monday,
-            calendarStyle: CalendarStyle(
-              // Use `CalendarStyle` to customize the UI
-              outsideDaysVisible: false,
-            ),
-            onDaySelected: _onDaySelected,
-            onRangeSelected: _onRangeSelected,
-            onFormatChanged: (format) {
-              if (_calendarFormat != format) {
-                setState(() {
-                  _calendarFormat = format;
-                });
-              }
-            },
-            onPageChanged: (focusedDay) {
-              _focusedDay = focusedDay;
-            },
-          ),
-          const SizedBox(height: 8.0),
-          Expanded(
-            child: ValueListenableBuilder<List<Event>>(
-              valueListenable: _selectedEvents,
-              builder: (context, value, _) {
-                return ListView.builder(
-                  itemCount: value.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 4.0,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: ListTile(
-                        onTap: () => print('${value[index]}'),
-                        title: Text('${value[index]}'),
-                      ),
-                    );
+                ],
+              ),
+              if (tag == "0") ...[
+                //_getEventsForDay(),
+                TableCalendar<Event>(
+                  firstDay: kFirstDay,
+                  lastDay: kLastDay,
+                  focusedDay: _focusedDay,
+                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                  rangeStartDay: _rangeStart,
+                  rangeEndDay: _rangeEnd,
+                  calendarFormat: _calendarFormat,
+                  rangeSelectionMode: _rangeSelectionMode,
+                  eventLoader: _getEventsForDay,
+                  startingDayOfWeek: StartingDayOfWeek.monday,
+                  calendarStyle: CalendarStyle(
+                    // Use `CalendarStyle` to customize the UI
+                    outsideDaysVisible: false,
+                  ),
+                  onDaySelected: _onDaySelected,
+                  onRangeSelected: _onRangeSelected,
+                  onFormatChanged: (format) {
+                    if (_calendarFormat != format) {
+                      setState(() {
+                        _calendarFormat = format;
+                      });
+                    }
                   },
-                );
-              },
-            ),
-          ),
-        ] else if (tag == "1") ...[
-          Dashboard()
-        ]
-      ]),
+                  onPageChanged: (focusedDay) {
+                    _focusedDay = focusedDay;
+                  },
+                ),
+                const SizedBox(height: 8.0),
+                Expanded(
+                  child: ValueListenableBuilder<List<Event>>(
+                    valueListenable: _selectedEvents,
+                    builder: (context, value, _) {
+                      return ListView.builder(
+                        itemCount: value.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                              vertical: 4.0,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: ListTile(
+                              onTap: () => print('${value[index]}'),
+                              title: Text('${value[index]}'),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      loadData().then((value) {
+                        _selectedDay = _focusedDay;
+                        _selectedEvents =
+                            ValueNotifier(_getEventsForDay(_selectedDay!));
+                        _selectedEvents = _selectedEvents;
+                      });
+                    });
+                  },
+                  child: const Text("Load"),
+                ),
+              ] else if (tag == "1") ...[
+                Dashboard()
+              ]
+            ]),
     );
   }
 }
