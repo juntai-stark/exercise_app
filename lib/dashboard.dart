@@ -1,4 +1,7 @@
+import 'package:exercise_dashboard/DB/db_helper.dart';
+import 'package:exercise_dashboard/DB/memo.dart';
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({
@@ -68,7 +71,18 @@ class Dashboard extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            DBHelper sd = DBHelper();
+            //데이터 입력 방식
+            var fido = Memo(
+              title: "13분",
+              year: 2022,
+              month: 3,
+              day: 15,
+              date: "2022.03.15",
+            );
+            sd.insertMemo(fido);
+          },
           child: const Text("Save"),
         )
       ],

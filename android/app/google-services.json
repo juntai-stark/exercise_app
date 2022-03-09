@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "599393340894",
+    "project_id": "cyclingapp-3f2e3",
+    "storage_bucket": "cyclingapp-3f2e3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:599393340894:android:cc214b3a0beede3d66214f",
+        "android_client_info": {
+          "package_name": "com.hitori.exercise_dashboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "599393340894-7gtgru8a2s334hfl61sc82q1kkur0ril.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1apj1yBzuPyBxQphZshbaMdidOymJTH0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "599393340894-7gtgru8a2s334hfl61sc82q1kkur0ril.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
