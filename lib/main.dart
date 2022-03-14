@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:exercise_dashboard/dashboard.dart';
+import 'package:exercise_dashboard/Serial/serial.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../utils.dart';
@@ -32,8 +33,6 @@ class TableEvents extends StatefulWidget {
 
 class _TableEventsState extends State<TableEvents> {
   String tag = "0";
-  bool _toggle = true;
-  bool _toggle2 = false;
 
   late ValueNotifier<List<Event>> _selectedEvents;
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -150,17 +149,13 @@ class _TableEventsState extends State<TableEvents> {
                   InkWell(
                     onTap: () {
                       setState(() {
-                        if (_toggle != true) {
-                          _toggle = true;
-                          _toggle2 = false;
-                        }
                         tag = "0";
                       });
                     },
                     child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          color: _toggle != true
+                          color: tag != "0"
                               ? Colors.transparent
                               : Color(0xffece0d1),
                         ),
@@ -174,22 +169,37 @@ class _TableEventsState extends State<TableEvents> {
                     onTap: () {
                       setState(() {
                         tag = "1";
-                        if (_toggle2 != true) {
-                          _toggle = false;
-                          _toggle2 = true;
-                        }
                       });
                     },
                     child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          color: _toggle2 != true
+                          color: tag != "1"
                               ? Colors.transparent
                               : Color(0xffece0d1),
                         ),
                         width: 120,
                         child: const Text(
                           "DashBoard",
+                          textAlign: TextAlign.center,
+                        )),
+                  ),
+                   InkWell(
+                    onTap: () {
+                      setState(() {
+                        tag = "2";
+                      });
+                    },
+                    child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: tag != "2"
+                              ? Colors.transparent
+                              : Color(0xffece0d1),
+                        ),
+                        width: 120,
+                        child: const Text(
+                          "Serial",
                           textAlign: TextAlign.center,
                         )),
                   ),
@@ -270,6 +280,8 @@ class _TableEventsState extends State<TableEvents> {
                 ),
               ] else if (tag == "1") ...[
                 Dashboard()
+              ] else if (tag == "2") ...[
+                Serial()
               ]
             ]),
     );
